@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myproject/screens/login.dart';
+import 'package:myproject/services/Authentication.dart';
 import 'package:myproject/widgets/Button.dart';
 import 'package:myproject/widgets/TextInput.dart';
 import 'package:myproject/widgets/PassInput.dart';
@@ -21,7 +22,7 @@ class _SignupState extends State<Signup> {
 
   // ignore: non_constant_identifier_names
   bool obsure_pass = true;
-
+  Authentication _authService = Authentication();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,7 +107,7 @@ class _SignupState extends State<Signup> {
                   Button(
                     text: "SIGNUP",
                     event: (() {
-                      Navigator.pushReplacementNamed(context, Login.route_name);
+                      signUpWithProvider();
                     }),
                   ),
                   //Gap
@@ -143,5 +144,13 @@ class _SignupState extends State<Signup> {
     setState(() {
       obsure_pass = !obsure_pass;
     });
+  }
+
+  signUpWithProvider() async {
+    try {
+      var user = await _authService.signInWithGoogle();
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacementNamed(context, Login.route_name);
+    } catch (e) {}
   }
 }

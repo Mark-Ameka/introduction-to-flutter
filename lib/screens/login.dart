@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:myproject/models/StorageItem.dart';
 import 'package:myproject/screens/dashboard.dart';
 import 'package:myproject/screens/signup.dart';
+import 'package:myproject/services/Authentication.dart';
+import 'package:myproject/services/StorageService.dart';
 import 'package:myproject/widgets/Button.dart';
 import 'package:myproject/widgets/TextInput.dart';
 import 'package:myproject/widgets/PassInput.dart';
@@ -14,6 +17,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  StorageService _storageService = StorageService();
+  Authentication _authService = Authentication();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passController = TextEditingController();
 
@@ -79,8 +84,7 @@ class _LoginState extends State<Login> {
                 Button(
                   text: "LOGIN",
                   event: (() {
-                    Navigator.pushReplacementNamed(
-                        context, Dashboard.route_name);
+                    loginWithProvider();
                   }),
                 ),
                 //Gap
@@ -138,5 +142,20 @@ class _LoginState extends State<Login> {
     setState(() {
       obsure_pass = !obsure_pass;
     });
+  }
+
+  loginWithProvider() async {
+    try {
+      var user = await _authService.signInWithGoogle();
+      var accessToken =
+          StorageItem("accessToken", user.credential?.accessToken as String);
+
+      await _storageService.saveData(accessToken);
+
+      if (accessToken.key.isNotEmpty) {
+        // ignore: use_build_context_synchronously
+        Navigator.pushReplacementNamed(context, Dashboard.route_name);
+      }
+    } catch (e) {}
   }
 }
